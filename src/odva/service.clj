@@ -2,6 +2,8 @@
   (:require [io.pedestal.http :as http]
             [io.pedestal.http.route :as route]
             [io.pedestal.http.body-params :as body-params]
+            [prometheus.core :as prometheus]
+            [odva.metrics :as metrics]
             [ring.util.response :as ring-resp]))
 
 (defn about-page
@@ -14,6 +16,10 @@
   [request]
   (ring-resp/response "Hello World!"))
 
+(defn metrics
+  [request]
+  (prometheus/dump-metrics (:registry @metrics/store)))
+
 ;; Defines "/" and "/about" routes with their associated :get handlers.
 ;; The interceptors defined after the verb map (e.g., {:get home-page}
 ;; apply to / and its children (/about).
@@ -21,6 +27,7 @@
 
 ;; Tabular routes
 (def routes #{["/" :get (conj common-interceptors `home-page)]
+              ["/metrics" :get (conj common-interceptors `metrics)]
               ["/about" :get (conj common-interceptors `about-page)]})
 
 ;; Map-based routes

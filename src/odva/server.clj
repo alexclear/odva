@@ -8,6 +8,9 @@
             [clojurewerkz.quartzite.schedule.simple :refer [schedule repeat-forever with-interval-in-milliseconds]]
             [clojurewerkz.quartzite.jobs :as j]
             [clj-http.client :as httpclient]
+            [prometheus.core :as prometheus]
+            [odva.metrics :refer [init!]]
+            [odva.metrics :as metrics]
             [odva.service :as service]))
 
 ;; This is an adapted service map, that can be started and stopped
@@ -37,13 +40,17 @@
   [ctx]
   (let [start (System/currentTimeMillis)]
     (httpclient/get "http://minfin.ru/ru/opendata/")
-    (println (format "Elapsed time in millis: %1$d" (- (System/currentTimeMillis) start)))
+    (let [finish (System/currentTimeMillis)]
+      (println (format "Elapsed time in millis: %1$d" (- finish start)))
+      (prometheus/track-observation @metrics/store "odva" "client_http_request" (- finish start) ["minfin_ru_ru_opendata"])
+      )
     )
   (println "This job does something"))
 
 (defn -main
   "The entry-point for 'lein run'"
   [& args]
+  (init!)
   (let [s (-> (qs/initialize) qs/start)
         job (j/build
              (j/of-type GetLinks)
