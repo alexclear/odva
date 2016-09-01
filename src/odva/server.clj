@@ -7,6 +7,7 @@
             [clojurewerkz.quartzite.jobs :refer [defjob]]
             [clojurewerkz.quartzite.schedule.simple :refer [schedule repeat-forever with-interval-in-milliseconds]]
             [clojurewerkz.quartzite.jobs :as j]
+            [clj-http.client :as httpclient]
             [odva.service :as service]))
 
 ;; This is an adapted service map, that can be started and stopped
@@ -32,16 +33,20 @@
       server/create-server
       server/start))
 
-(defjob NoOpJob
+(defjob GetLinks
   [ctx]
-  (println "This job does nothing"))
+  (let [start (System/currentTimeMillis)]
+    (httpclient/get "http://minfin.ru/ru/opendata/")
+    (println (format "Elapsed time in millis: %1$d" (- (System/currentTimeMillis) start)))
+    )
+  (println "This job does something"))
 
 (defn -main
   "The entry-point for 'lein run'"
   [& args]
   (let [s (-> (qs/initialize) qs/start)
         job (j/build
-             (j/of-type NoOpJob)
+             (j/of-type GetLinks)
              (j/with-identity (j/key "jobs.noop.1")))
         trigger (t/build
                  (t/with-identity (t/key "triggers.1"))
