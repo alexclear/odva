@@ -2,6 +2,11 @@
   (:gen-class) ; for -main method in uberjar
   (:require [io.pedestal.http :as server]
             [io.pedestal.http.route :as route]
+            [clojurewerkz.quartzite.scheduler :as qs]
+            [clojurewerkz.quartzite.triggers :as t]
+            [clojurewerkz.quartzite.jobs :refer [defjob]]
+            [clojurewerkz.quartzite.schedule.simple :refer [schedule repeat-forever with-interval-in-milliseconds]]
+            [clojurewerkz.quartzite.jobs :as j]
             [odva.service :as service]))
 
 ;; This is an adapted service map, that can be started and stopped
@@ -27,9 +32,25 @@
       server/create-server
       server/start))
 
+(defjob NoOpJob
+  [ctx]
+  (println "This job does nothing"))
+
 (defn -main
   "The entry-point for 'lein run'"
   [& args]
+  (let [s (-> (qs/initialize) qs/start)
+        job (j/build
+             (j/of-type NoOpJob)
+             (j/with-identity (j/key "jobs.noop.1")))
+        trigger (t/build
+                 (t/with-identity (t/key "triggers.1"))
+                 (t/start-now)
+                 (t/with-schedule (schedule
+                                   (repeat-forever)
+                                   (with-interval-in-milliseconds 10000))))
+        ]
+    (qs/schedule s job trigger))
   (println "\nCreating your server...")
   (server/start runnable-service))
 
