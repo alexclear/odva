@@ -1,0 +1,3 @@
+---
+- name: put odva.json
+  template: src=odva.json dest={{ ext_prometheus_conf_json_volume }}/odva.json

@@ -6,3 +6,4 @@
   - role: odva
   - role: docker-io
   - role: prometheus-container
+  - role: prometheus-odva

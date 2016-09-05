@@ -1,0 +1,5 @@
+[
+  {
+    "targets": [ "{{ ansible_docker0.ipv4.address }}:8080" ]
+  }
+]
