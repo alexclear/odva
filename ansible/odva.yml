@@ -4,3 +4,5 @@
   roles:
   - role: java
   - role: odva
+  - role: docker-io
+  - role: prometheus-container

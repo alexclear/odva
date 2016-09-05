@@ -1,3 +1,12 @@
 [submodule "ansible/roles/java"]
 	path = ansible/roles/java
 	url = https://github.com/gitinsky/ansible-role-java.git
+[submodule "ansible/roles/prometheus-container"]
+	path = ansible/roles/prometheus-container
+	url = https://github.com/gitinsky/ansible-role-prometheus-container.git
+[submodule "ansible/roles/docker-io"]
+	path = ansible/roles/docker-io
+	url = https://github.com/gitinsky/docker-io.git
+[submodule "ansible/roles/docker.ubuntu"]
+	path = ansible/roles/docker.ubuntu
+	url = https://github.com/gitinsky/docker.ubuntu.git
