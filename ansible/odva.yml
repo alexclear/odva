@@ -1,0 +1,6 @@
+---
+- hosts: odva
+  become: yes
+  roles:
+  - role: java
+  - role: odva
