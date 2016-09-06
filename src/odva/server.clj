@@ -64,7 +64,11 @@
         ]
     (qs/schedule s job trigger))
   (println "\nCreating your server...")
-  (server/start runnable-service))
+  (try
+    (server/start runnable-service)
+    (catch java.net.BindException e (println (str "caught exception: " (.toString e))) (System/exit 1))
+    )
+  )
 
 ;; If you package the service up as a WAR,
 ;; some form of the following function sections is required (for io.pedestal.servlet.ClojureVarServlet).
