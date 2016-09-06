@@ -4,12 +4,12 @@ Documentation=https://github.com/alexclear/odva
 
 [Service]
 Type=simple
-User=odva
-Group=odva
-ExecStart=/usr/bin/java -jar /home/odva/odva-0.0.1-SNAPSHOT-standalone.jar &
+User={{ odva_user }}
+Group={{ odva_user }}
+ExecStart=/usr/bin/java -jar /home/{{ odva_user }}/odva-0.0.1-SNAPSHOT-standalone.jar &
 StandardOutput=journal
 StandardError=journal
 
 [Install]
 WantedBy=multi-user.target
-Alias=odva.service
+Alias={{ odva_user }}.service

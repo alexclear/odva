@@ -1,13 +1,13 @@
 - name: add odva user
-  user: name=odva shell=/bin/bash state=present
+  user: name={{ odva_user }} shell=/bin/bash state=present
 
 - name: copy the server
-  copy: src=../target/odva-0.0.1-SNAPSHOT-standalone.jar dest=/home/odva/odva-0.0.1-SNAPSHOT-standalone.jar owner=odva group=odva
+  copy: src=../target/odva-0.0.1-SNAPSHOT-standalone.jar dest=/home/{{ odva_user }}/odva-0.0.1-SNAPSHOT-standalone.jar owner={{ odva_user }} group={{ odva_user }}
 
 - name: put systemd unit file to its destination
-  template: src=odva.service dest=/etc/systemd/system/odva.service owner=root group=root mode=0644
+  template: src=odva.service dest=/etc/systemd/system/{{ odva_user }}.service owner=root group=root mode=0644
   when: "ansible_distribution == 'Ubuntu' and ansible_distribution_version == '16.04'"
 
 - name: enable odva service
-  service: name=odva enabled=yes state=started
+  service: name={{ odva_user }} enabled=yes state=started
   when: "ansible_distribution == 'Ubuntu' and ansible_distribution_version == '16.04'"
