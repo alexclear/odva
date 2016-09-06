@@ -1,0 +1,13 @@
+---
+- hosts: odva-test
+  become: yes
+  roles:
+  - role: java
+  - { role: odva, odva_user: odva_test }
+    #  - role: docker-io
+    #  - role: prometheus-container
+    #  - role: prometheus-odva
+    #  - role: grafana-dockerized
+    #  - role: grafana-container
+    #  - role: nginx
+    #  - role: nginx-odva
