@@ -7,3 +7,5 @@
   - role: docker-io
   - role: prometheus-container
   - role: prometheus-odva
+  - role: grafana-dockerized
+  - role: grafana-container

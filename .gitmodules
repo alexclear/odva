@@ -10,3 +10,9 @@
 [submodule "ansible/roles/docker.ubuntu"]
 	path = ansible/roles/docker.ubuntu
 	url = https://github.com/gitinsky/docker.ubuntu.git
+[submodule "ansible/roles/grafana-dockerized"]
+	path = ansible/roles/grafana-dockerized
+	url = https://github.com/gitinsky/ansible-role-grafana-dockerized.git
+[submodule "ansible/roles/grafana-container"]
+	path = ansible/roles/grafana-container
+	url = https://github.com/gitinsky/ansible-role-grafana-container.git
