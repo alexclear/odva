@@ -1,0 +1,7 @@
+---
+- name: put odva
+  template: src=odva dest=/etc/nginx/sites-available/odva
+
+- name: link odva
+  file: state=link src=/etc/nginx/sites-available/odva dest=/etc/nginx/sites-enabled/odva
+  notify: reload nginx

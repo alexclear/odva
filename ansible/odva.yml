@@ -9,3 +9,5 @@
   - role: prometheus-odva
   - role: grafana-dockerized
   - role: grafana-container
+  - role: nginx
+  - role: nginx-odva
