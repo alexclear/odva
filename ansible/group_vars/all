@@ -1,1 +1,4 @@
 grafana_port: 3010
+odva_server_name: odva.1888.spb.ru
+grafana_anon_access_enabled: "true"
+grafana_auth_basic_enabled: "false"
