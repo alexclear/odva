@@ -7,7 +7,9 @@
                  [io.pedestal/pedestal.service "0.5.1"]
                  [clojurewerkz/quartzite "2.0.0"]
                  [clj-http "2.2.0"]
+                 [clj-yaml "0.4.0"]
                  [com.soundcloud/prometheus-clj "2.4.0"]
+                 [org.clojure/tools.cli "0.3.5"]
 
                  ;; Remove this line and uncomment one of the next lines to
                  ;; use Immutant or Tomcat instead of Jetty:

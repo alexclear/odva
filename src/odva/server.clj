@@ -11,11 +11,9 @@
             [prometheus.core :as prometheus]
             [odva.metrics :refer [init!]]
             [odva.metrics :as metrics]
+            [clj-yaml.core :as yaml]
+            [clojure.tools.cli :refer [parse-opts]]
             [odva.service :as service]))
-
-;; This is an adapted service map, that can be started and stopped
-;; From the REPL you can call server/start and server/stop on this service
-(defonce runnable-service (server/create-server service/service))
 
 (defn run-dev
   "The entry-point for 'lein run-dev'"
@@ -47,26 +45,38 @@
     )
   (println "This job does something"))
 
+(def cli-options
+  [
+   ["-p" "--port PORT" "Port number"
+    :default 8080
+    :parse-fn #(Integer/parseInt %)
+    :validate [#(< 0 % 0x10000) "Must be a number between 0 and 65536"]]
+   ["-h" "--help"]])
+
 (defn -main
   "The entry-point for 'lein run'"
   [& args]
-  (init!)
-  (let [s (-> (qs/initialize) qs/start)
-        job (j/build
-             (j/of-type GetLinks)
-             (j/with-identity (j/key "jobs.noop.1")))
-        trigger (t/build
-                 (t/with-identity (t/key "triggers.1"))
-                 (t/start-now)
-                 (t/with-schedule (schedule
-                                   (repeat-forever)
-                                   (with-interval-in-milliseconds 10000))))
-        ]
-    (qs/schedule s job trigger))
-  (println "\nCreating your server...")
-  (try
-    (server/start runnable-service)
-    (catch java.net.BindException e (println (str "caught exception: " (.toString e))) (System/exit 1))
+  (let [{:keys [options arguments errors summary]} (parse-opts args cli-options)]
+    (println (str "options: " (.toString options)))
+    (init!)
+    (let [s (-> (qs/initialize) qs/start)
+          job (j/build
+               (j/of-type GetLinks)
+               (j/with-identity (j/key "jobs.noop.1")))
+          trigger (t/build
+                   (t/with-identity (t/key "triggers.1"))
+                   (t/start-now)
+                   (t/with-schedule (schedule
+                                     (repeat-forever)
+                                     (with-interval-in-milliseconds 10000))))
+          ]
+      (qs/schedule s job trigger))
+    (println "\nCreating your server...")
+    (try
+      (println (.toString (merge service/service {:io.pedestal.http/port (:port options)})))
+      (server/start (server/create-server (merge service/service {:io.pedestal.http/port (:port options)})))
+      (catch java.net.BindException e (println (str "caught exception: " (.toString e))) (System/exit 1))
+      )
     )
   )
 
