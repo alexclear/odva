@@ -3,7 +3,7 @@
   become: yes
   roles:
   - role: java
-  - { role: odva, odva_user: odva_test }
+  - { role: odva, odva_user: odva_test, odva_port: 8081 }
     #  - role: docker-io
     #  - role: prometheus-container
     #  - role: prometheus-odva

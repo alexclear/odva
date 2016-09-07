@@ -6,7 +6,7 @@ Documentation=https://github.com/alexclear/odva
 Type=simple
 User={{ odva_user }}
 Group={{ odva_user }}
-ExecStart=/usr/bin/java -jar /home/{{ odva_user }}/odva-0.0.1-SNAPSHOT-standalone.jar &
+ExecStart=/usr/bin/java -jar /home/{{ odva_user }}/odva-0.0.1-SNAPSHOT-standalone.jar -p {{ odva_port }} &
 StandardOutput=journal
 StandardError=journal
 
