@@ -51,6 +51,9 @@
     :default 8080
     :parse-fn #(Integer/parseInt %)
     :validate [#(< 0 % 0x10000) "Must be a number between 0 and 65536"]]
+   ["-i" "--interval SECS" "Interval between probes in seconds"
+    :default 10
+    :parse-fn #(Integer/parseInt %)]
    ["-h" "--help"]])
 
 (defn -main
@@ -68,7 +71,7 @@
                    (t/start-now)
                    (t/with-schedule (schedule
                                      (repeat-forever)
-                                     (with-interval-in-milliseconds 10000))))
+                                     (with-interval-in-milliseconds (* 1000 (:interval options))))))
           ]
       (qs/schedule s job trigger))
     (println "\nCreating your server...")
