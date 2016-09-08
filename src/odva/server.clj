@@ -43,8 +43,7 @@
       (println (format "Elapsed time in millis: %1$d" (- finish start)))
       (prometheus/track-observation @metrics/store (get m "store-name") "client_http_request" (- finish start) ["minfin_ru_ru_opendata"])
       )
-    )
-  (println "This job does something"))
+    ))
 
 (def cli-options
   [
@@ -57,6 +56,8 @@
     :parse-fn #(Integer/parseInt %)]
    ["-s" "--store STORE" "Metrics store name"
     :default "odva"]
+   ["-c" "--config CONFIG" "Config file name"
+    :default "/etc/odva/odva.yml"]
    ["-h" "--help"]])
 
 (defn -main
@@ -64,6 +65,7 @@
   [& args]
   (let [{:keys [options arguments errors summary]} (parse-opts args cli-options)]
     (println (str "options: " (.toString options)))
+    (println (str "YAML config: " (.toString (yaml/parse-string (slurp (:config options))))))
     (init! (:store options))
     (let [s (-> (qs/initialize) qs/start)
           job (j/build
