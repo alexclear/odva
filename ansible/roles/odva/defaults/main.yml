@@ -1,3 +1,4 @@
 odva_user: odva
 odva_port: 8080
 odva_interval: 10
+odva_store: odva

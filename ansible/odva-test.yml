@@ -3,7 +3,7 @@
   become: yes
   roles:
   - role: java
-  - { role: odva, odva_user: odva_test, odva_port: 8081, odva_interval: 60 }
+  - { role: odva, odva_user: odva_test, odva_port: 8081, odva_interval: 60, odva_store: odva_test }
   - role: docker-io
   - { role: prometheus-container, ext_prometheus_conf_volume: /var/lib/docker-extvols/prometheus-test-conf, ext_prometheus_conf_json_volume: /var/lib/docker-extvols/prometheus-test-conf-json, ext_prometheus_storage_volume: /var/lib/docker-extvols/prometheus-test-storage, prometheus_port: 9091, prometheus_container_name: prometheus-test }
   - { role: prometheus-odva, ext_prometheus_conf_json_volume: /var/lib/docker-extvols/prometheus-test-conf-json, odva_port: 8081 }

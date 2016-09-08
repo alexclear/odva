@@ -4,6 +4,7 @@
             [io.pedestal.http.route :as route]
             [clojurewerkz.quartzite.scheduler :as qs]
             [clojurewerkz.quartzite.triggers :as t]
+            [clojurewerkz.quartzite.conversion :as qc]
             [clojurewerkz.quartzite.jobs :refer [defjob]]
             [clojurewerkz.quartzite.schedule.simple :refer [schedule repeat-forever with-interval-in-milliseconds]]
             [clojurewerkz.quartzite.jobs :as j]
@@ -36,11 +37,11 @@
 
 (defjob GetLinks
   [ctx]
-  (let [start (System/currentTimeMillis)]
+  (let [start (System/currentTimeMillis) m (qc/from-job-data ctx)]
     (httpclient/get "http://minfin.ru/ru/opendata/")
     (let [finish (System/currentTimeMillis)]
       (println (format "Elapsed time in millis: %1$d" (- finish start)))
-      (prometheus/track-observation @metrics/store "odva" "client_http_request" (- finish start) ["minfin_ru_ru_opendata"])
+      (prometheus/track-observation @metrics/store (get m "store-name") "client_http_request" (- finish start) ["minfin_ru_ru_opendata"])
       )
     )
   (println "This job does something"))
@@ -54,6 +55,8 @@
    ["-i" "--interval SECS" "Interval between probes in seconds"
     :default 10
     :parse-fn #(Integer/parseInt %)]
+   ["-s" "--store STORE" "Metrics store name"
+    :default "odva"]
    ["-h" "--help"]])
 
 (defn -main
@@ -61,10 +64,11 @@
   [& args]
   (let [{:keys [options arguments errors summary]} (parse-opts args cli-options)]
     (println (str "options: " (.toString options)))
-    (init!)
+    (init! (:store options))
     (let [s (-> (qs/initialize) qs/start)
           job (j/build
                (j/of-type GetLinks)
+               (j/using-job-data {"store-name" (:store options)})
                (j/with-identity (j/key "jobs.noop.1")))
           trigger (t/build
                    (t/with-identity (t/key "triggers.1"))
