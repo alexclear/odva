@@ -38,12 +38,16 @@
 (defjob GetLinks
   [ctx]
   (let [start (System/currentTimeMillis) m (qc/from-job-data ctx)]
-    (httpclient/get "http://minfin.ru/ru/opendata/")
-    (let [finish (System/currentTimeMillis)]
-      (println (format "Elapsed time in millis: %1$d" (- finish start)))
-      (prometheus/track-observation @metrics/store (get m "store-name") "client_http_request" (- finish start) ["minfin_ru_ru_opendata"])
-      )
-    ))
+    (println (str "Map: " (.toString m)))
+    (let [urls (get m "urls")] 
+      (println urls)
+      (map (fn [x] (println (str "Url: " x))) urls)
+      (httpclient/get "http://minfin.ru/ru/opendata/")
+      (let [finish (System/currentTimeMillis)]
+        (println (format "Elapsed time in millis: %1$d" (- finish start)))
+        (prometheus/track-observation @metrics/store (get m "store-name") "client_http_request" (- finish start) ["minfin_ru_ru_opendata"])
+        )
+      )))
 
 (def cli-options
   [
@@ -65,26 +69,28 @@
   [& args]
   (let [{:keys [options arguments errors summary]} (parse-opts args cli-options)]
     (println (str "options: " (.toString options)))
-    (println (str "YAML config: " (.toString (yaml/parse-string (slurp (:config options))))))
-    (init! (:store options))
-    (let [s (-> (qs/initialize) qs/start)
-          job (j/build
-               (j/of-type GetLinks)
-               (j/using-job-data {"store-name" (:store options)})
-               (j/with-identity (j/key "jobs.noop.1")))
-          trigger (t/build
-                   (t/with-identity (t/key "triggers.1"))
-                   (t/start-now)
-                   (t/with-schedule (schedule
-                                     (repeat-forever)
-                                     (with-interval-in-milliseconds (* 1000 (:interval options))))))
-          ]
-      (qs/schedule s job trigger))
-    (println "\nCreating your server...")
-    (try
-      (println (.toString (merge service/service {:io.pedestal.http/port (:port options)})))
-      (server/start (server/create-server (merge service/service {:io.pedestal.http/port (:port options)})))
-      (catch java.net.BindException e (println (str "caught exception: " (.toString e))) (System/exit 1))
+    (let [yaml-config (yaml/parse-string (slurp (:config options)))]
+      (println (str "YAML config: " (.toString yaml-config)))
+      (init! (:store options))
+      (let [s (-> (qs/initialize) qs/start)
+            job (j/build
+                 (j/of-type GetLinks)
+                 (j/using-job-data {"store-name" (:store options) "urls" (:urls yaml-config)})
+                 (j/with-identity (j/key "jobs.noop.1")))
+            trigger (t/build
+                     (t/with-identity (t/key "triggers.1"))
+                     (t/start-now)
+                     (t/with-schedule (schedule
+                                       (repeat-forever)
+                                       (with-interval-in-milliseconds (* 1000 (:interval options))))))
+            ]
+        (qs/schedule s job trigger))
+      (println "\nCreating your server...")
+      (try
+        (println (.toString (merge service/service {:io.pedestal.http/port (:port options)})))
+        (server/start (server/create-server (merge service/service {:io.pedestal.http/port (:port options)})))
+        (catch java.net.BindException e (println (str "caught exception: " (.toString e))) (System/exit 1))
+        )
       )
     )
   )
