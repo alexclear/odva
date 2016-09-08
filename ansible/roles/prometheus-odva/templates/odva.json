@@ -1,5 +1,5 @@
 [
   {
-    "targets": [ "{{ ansible_docker0.ipv4.address }}:8080" ]
+    "targets": [ "{{ ansible_docker0.ipv4.address }}:{{ odva_port }}" ]
   }
 ]
