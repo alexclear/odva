@@ -39,15 +39,20 @@
   [ctx]
   (let [start (System/currentTimeMillis) m (qc/from-job-data ctx)]
     (println (str "Map: " (.toString m)))
-    (let [urls (get m "urls")] 
-      (println urls)
-      (map (fn [x] (println (str "Url: " x))) urls)
-      (httpclient/get "http://minfin.ru/ru/opendata/")
-      (let [finish (System/currentTimeMillis)]
-        (println (format "Elapsed time in millis: %1$d" (- finish start)))
-        (prometheus/track-observation @metrics/store (get m "store-name") "client_http_request" (- finish start) ["minfin_ru_ru_opendata"])
-        )
-      )))
+    (doall (map (fn [x] (println (str "Url: " x))
+                  (let [start-1 (System/currentTimeMillis)]
+                    (httpclient/get x)
+                    (let [finish-1 (System/currentTimeMillis)]
+                      (println (format "Elapsed time in millis: %1$d" (- finish-1 start-1)))
+                      )
+                    )
+                  ) (get m "urls")))
+    (httpclient/get "http://minfin.ru/ru/opendata/")
+    (let [finish (System/currentTimeMillis)]
+      (println (format "Elapsed time in millis: %1$d" (- finish start)))
+      (prometheus/track-observation @metrics/store (get m "store-name") "client_http_request" (- finish start) ["minfin_ru_ru_opendata"])
+      )
+    ))
 
 (def cli-options
   [
