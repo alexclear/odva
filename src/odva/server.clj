@@ -37,21 +37,17 @@
 
 (defjob GetLinks
   [ctx]
-  (let [start (System/currentTimeMillis) m (qc/from-job-data ctx)]
+  (let [m (qc/from-job-data ctx)]
     (println (str "Map: " (.toString m)))
-    (doall (map (fn [x] (println (str "Url: " x))
-                  (let [start-1 (System/currentTimeMillis)]
-                    (httpclient/get x)
-                    (let [finish-1 (System/currentTimeMillis)]
-                      (println (format "Elapsed time in millis: %1$d" (- finish-1 start-1)))
+    (doall (map (fn [url] (println (str "Url: " url))
+                  (let [start (System/currentTimeMillis)]
+                    (httpclient/get url)
+                    (let [finish (System/currentTimeMillis)]
+                      (println (format "Elapsed time in millis: %1$d" (- finish start)))
+                      (prometheus/track-observation @metrics/store (get m "store-name") "client_http_request" (- finish start) [(clojure.string/replace (clojure.string/replace url #"^https?://(.+?)/?$" "$1") #"[/\.]" "_")])
                       )
                     )
                   ) (get m "urls")))
-    (httpclient/get "http://minfin.ru/ru/opendata/")
-    (let [finish (System/currentTimeMillis)]
-      (println (format "Elapsed time in millis: %1$d" (- finish start)))
-      (prometheus/track-observation @metrics/store (get m "store-name") "client_http_request" (- finish start) ["minfin_ru_ru_opendata"])
-      )
     ))
 
 (def cli-options
