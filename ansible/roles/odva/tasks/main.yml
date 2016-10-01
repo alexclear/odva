@@ -4,6 +4,9 @@
 - name: copy the server
   copy: src=../target/odva-0.0.1-SNAPSHOT-standalone.jar dest=/home/{{ odva_user }}/odva-0.0.1-SNAPSHOT-standalone.jar owner={{ odva_user }} group={{ odva_user }}
 
+- name: create /etc/odva
+  file: state=directory dest=/etc/odva
+
 - name: put odva.yml
   template: src=odva.yml dest={{ odva_config }} owner=root group=root mode=0644
 
