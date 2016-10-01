@@ -1,0 +1,12 @@
+---
+- hosts: localhost
+  become: yes
+  roles:
+  - { role: java, i_do_accept_oracle_binary_code_license_agreement_for_the_java_se_platform_products_and_javafx_please_skip_the_prompt: "yes" }
+  - role: odva
+  - role: docker-io
+  - role: prometheus-container
+  - role: prometheus-odva
+  - role: grafana-container
+  - role: nginx
+  - role: nginx-odva
